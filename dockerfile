@@ -6,11 +6,11 @@ ENV FLUTTER_VERSION="3.7.4"
 ENV ANDROID_COMPILE_SDK="29"
 ENV ANDROID_BUILD_TOOLS="33.0.0"
 ENV ANDROID_SDK_TOOLS="6514223"
-ENV PATH=$PATH:${ANDROID_HOME}/cmdline-tools/tools/bin/:"$HOME/.pub-cache/bin":$FLUTTER_HOME
+ENV PATH=$PATH:${ANDROID_HOME}/cmdline-tools/tools/bin/:"$HOME/.pub-cache/bin":$FLUTTER_HOME/bin
 
 SHELL ["/bin/bash", "-c"] 
 
-RUN echo "PATH=$PATH:${ANDROID_HOME}/cmdline-tools/tools/bin/:$HOME/.pub-cache/bin:$FLUTTER_HOME" >> /etc/bash.bashrc
+RUN echo "PATH=$PATH:${ANDROID_HOME}/cmdline-tools/tools/bin/:$HOME/.pub-cache/bin:$FLUTTER_HOME/bin" >> /etc/bash.bashrc
 
 RUN apt-get --quiet update --yes && \
  apt-get --quiet install --yes wget tar unzip tree && \
@@ -25,7 +25,8 @@ RUN apt-get update && \
 
 RUN install -d $ANDROID_HOME && \
  wget --output-document=$ANDROID_HOME/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-${ANDROID_SDK_TOOLS}_latest.zip && \
- unzip -o ${ANDROID_HOME}/cmdline-tools.zip -d ${ANDROID_HOME}/cmdline-tools
+ unzip -o ${ANDROID_HOME}/cmdline-tools.zip -d ${ANDROID_HOME}/cmdline-tools && \
+ rm ${ANDROID_HOME}/cmdline-tools.zip 
 
 RUN yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses || true && \
     sdkmanager --sdk_root=${ANDROID_HOME} "platforms;android-${ANDROID_COMPILE_SDK}" && \
@@ -35,7 +36,8 @@ RUN yes | sdkmanager --sdk_root=${ANDROID_HOME} --licenses || true && \
 
 RUN wget --output-document=/opt/flutter.tar.xz https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz && \
  mkdir $FLUTTER_HOME && \
- tar -xvf /opt/flutter.tar.xz -C $FLUTTER_HOME
+ tar -xvf /opt/flutter.tar.xz -C /opt && \
+ rm /opt/flutter.tar.xz
 
 RUN dart pub global activate fvm && \
  export PATH="$PATH":"$HOME/.pub-cache/bin" && \
